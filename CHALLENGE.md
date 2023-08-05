@@ -6,7 +6,7 @@ Given the data about Mobile Food Facilities in San Francisco (https://data.sfgov
 - Search by street name. The user should be able to type just part of the address. Example: Searching for "SAN" should return food trucks on "SANSOME ST"
 - Given a latitude and longitude, the API should return the 5 nearest food trucks. By default, this should only return food trucks with status "APPROVED", but the user should be able to override this and search for all statuses.
   - You can use any external services to help with this (e.g. Google Maps API).
-- For the programming languages allowed we would prefer that you use the one that was discussed with the recruiter or the hiring manager. So make sure that this is clear before you start this challenge, please :) 
+- For the programming languages allowed we would prefer that you use the one that was discussed with the recruiter or the hiring manager. So make sure that this is clear before you start this challenge, please :)
 - We write automated tests and we would like you to do so as well.
 
 **Bonus points:**
