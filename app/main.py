@@ -1,5 +1,6 @@
 import csv
 from contextlib import asynccontextmanager
+from typing import Optional
 
 from fastapi import FastAPI
 
@@ -26,13 +27,15 @@ app = FastAPI(lifespan=load_facilities)
 
 
 @app.get("/")
-def search_by_applicant(applicant: str) -> list[MobileFacility]:
+def get_all_applicants() -> list[MobileFacility]:
     # Sanity check endpoint: return all facilities on GET /
     return FACILITIES
 
 
 @app.get("/search/applicant")
-def search_by_applicant(applicant: str) -> list[MobileFacility]:
+def search_by_applicant(
+    applicant: str, Status: Optional[str] = None
+) -> list[MobileFacility]:
     # Note: The challenge description doesn't specify whether the search
     # should be exact or partial match, or whether it should be case
     # sensitive.
@@ -40,5 +43,9 @@ def search_by_applicant(applicant: str) -> list[MobileFacility]:
     # Because the street name search explicitly asks for partial searching,
     # I assume that the applicant name search should be an exact match.
     results = [fac for fac in FACILITIES if fac.Applicant == applicant]
-    print(FACILITIES[0].Applicant)
+
+    # Further filter by status if provided
+    if Status:
+        results = [fac for fac in results if fac.Status == Status]
+
     return results
