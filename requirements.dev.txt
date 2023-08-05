@@ -1,0 +1,7 @@
+# These are the requirements to test the project
+#
+# First, install the base project requirements:
+-r requirements.txt
+# Then, install the test requirements:
+httpx==0.24.1
+pytest==7.4.0

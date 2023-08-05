@@ -1,3 +1,6 @@
+# These are the requirements to build the Docker image for this project
+#
+# See requirements.dev.txt for the requirements to test the project locally
 fastapi==0.101.0
 pydantic==1.10.7
 uvicorn[standard]==0.23.2

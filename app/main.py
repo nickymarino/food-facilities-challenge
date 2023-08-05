@@ -34,7 +34,7 @@ def get_all_applicants() -> list[MobileFacility]:
 
 @app.get("/search/applicant")
 def search_by_applicant(
-    applicant: str, Status: Optional[str] = None
+    Applicant: str, Status: Optional[str] = None
 ) -> list[MobileFacility]:
     # Note: The challenge description doesn't specify whether the search
     # should be exact or partial match, or whether it should be case
@@ -42,7 +42,7 @@ def search_by_applicant(
     #
     # Because the street name search explicitly asks for partial searching,
     # I assume that the applicant name search should be an exact match.
-    results = [fac for fac in FACILITIES if fac.Applicant == applicant]
+    results = [fac for fac in FACILITIES if fac.Applicant == Applicant]
 
     # Further filter by status if provided
     if Status:
