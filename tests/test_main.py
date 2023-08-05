@@ -62,8 +62,8 @@ class TestSearchByApplicant:
         response_json = response.json()
         assert type(response_json) == list
 
-        location_ids = set([row["locationid"] for row in response_json])
-        expected_ids = set([1341056, 1336921])
+        location_ids = [row["locationid"] for row in response_json]
+        expected_ids = [1341056, 1336921]
         assert location_ids == expected_ids
 
     def test_status_with_no_matches_returns_no_facilities(self, client: TestClient):
@@ -87,6 +87,60 @@ class TestSearchByApplicant:
         response_json = response.json()
         assert type(response_json) == list
 
-        location_ids = set([row["locationid"] for row in response_json])
-        expected_ids = set([1598473, 1598475, 1598474])
+        location_ids = [row["locationid"] for row in response_json]
+        expected_ids = [1598473, 1598475, 1598474]
         assert location_ids == expected_ids
+
+
+class TestSearchByStreet:
+    def test_partial_street_search_returns_proper_facilities(self, client: TestClient):
+        response = client.get(
+            "/search/street",
+            params={"street": "SAN"},
+        )
+        assert response.status_code == 200
+
+        response_json = response.json()
+        assert type(response_json) == list
+
+        assert len(response_json) == 7
+
+        location_ids_and_addresses = [
+            (row["locationid"], row["Address"]) for row in response_json
+        ]
+        expected_ids_and_addresses = [
+            (1591820, "217 SANSOME ST"),
+            (934719, "1 SANSOME ST"),
+            (1591839, "1 SANSOME ST"),
+            (1585966, "727 SANSOME ST"),
+            (934518, "115 SANSOME ST"),
+            (934555, "231 SANSOME ST"),
+            (1337923, "155 SANSOME ST"),
+        ]
+        assert location_ids_and_addresses == expected_ids_and_addresses
+
+    def test_partial_lowercase_street_search_returns_no_facilities(
+        self, client: TestClient
+    ):
+        response = client.get(
+            "/search/street",
+            params={"street": "san"},
+        )
+        assert response.status_code == 200
+
+        response_json = response.json()
+        assert type(response_json) == list
+        assert len(response_json) == 0
+
+    def test_partial_nonexisting_street_search_returns_no_facilities(
+        self, client: TestClient
+    ):
+        response = client.get(
+            "/search/street",
+            params={"street": "definitely-not-a-street-name"},
+        )
+        assert response.status_code == 200
+
+        response_json = response.json()
+        assert type(response_json) == list
+        assert len(response_json) == 0

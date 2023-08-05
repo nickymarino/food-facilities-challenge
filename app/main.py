@@ -42,10 +42,22 @@ def search_by_applicant(
     #
     # Because the street name search explicitly asks for partial searching,
     # I assume that the applicant name search should be an exact match.
-    results = [fac for fac in FACILITIES if fac.Applicant == Applicant]
+    results = [facility for facility in FACILITIES if facility.Applicant == Applicant]
 
     # Further filter by status if provided
     if Status:
-        results = [fac for fac in results if fac.Status == Status]
+        results = [facility for facility in results if facility.Status == Status]
 
+    return results
+
+
+@app.get("/search/street")
+def search_by_street(street: str) -> list[MobileFacility]:
+    # Note: Based on the example "SAN" -> "SANSOME ST", I assumed this
+    # search is case sensitive (in addition to a partial search).
+    #
+    # I also assume here that streets named "ST" should match the `street`
+    # parameter. For example, "ST" should match "SANSOME ST". See README
+    # for more details.
+    results = [facility for facility in FACILITIES if street in facility.Address]
     return results
