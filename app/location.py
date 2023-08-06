@@ -16,7 +16,7 @@ class Location(BaseModel):
         return (self.Latitude, self.Longitude)
 
     def distance_miles_from(self, other: Location) -> float:
-        """Return the distance in miles between this facility and another"""
+        """Return the distance in miles between this location and another"""
         return distance(self.lat_long, other.lat_long).miles
 
     def find_closest_neighbors(
@@ -32,11 +32,6 @@ class Location(BaseModel):
                 f"Cannot find {num_neighbors} neighbors when there are only {len(other_locations)} facilities"
             )
 
-        # search = [(l.lat_long, self.distance_miles_from(l)) for l in other_locations]
-        # search.sort(key=lambda x: x[1])
-        # from pprint import pprint
-
-        # pprint(search[:5])
         # Sort facilities by distance from this facility
         examined_locations = sorted(
             other_locations, key=lambda location: self.distance_miles_from(location)
