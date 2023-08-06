@@ -4,6 +4,7 @@ from typing import Optional
 
 from fastapi import FastAPI
 
+from app.location import Location
 from app.mobile_facility import MobileFacility
 
 
@@ -61,3 +62,19 @@ def search_by_street(street: str) -> list[MobileFacility]:
     # for more details.
     results = [facility for facility in FACILITIES if street in facility.Address]
     return results
+
+
+@app.get("/search/nearby")
+def search_by_location(
+    latitude: float, longitude: float, approved_only: bool = True
+) -> list[MobileFacility]:
+    location = Location(Latitude=latitude, Longitude=longitude)
+
+    if approved_only:
+        locations_to_search = [fac for fac in FACILITIES if fac.Status == "APPROVED"]
+    else:
+        locations_to_search = FACILITIES
+
+    return location.find_closest_neighbors(
+        other_locations=locations_to_search, num_neighbors=5
+    )

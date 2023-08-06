@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from geopy.distance import distance
-from pydantic import BaseModel, validator
+from pydantic import validator
+
+from app.location import Location
 
 
-class MobileFacility(BaseModel):
+class MobileFacility(Location):
     locationid: int
     Applicant: str
     FacilityType: str
@@ -21,8 +22,6 @@ class MobileFacility(BaseModel):
     FoodItems: str
     X: str
     Y: str
-    Latitude: float
-    Longitude: float
     Schedule: str
     dayshours: str
     NOISent: str
@@ -53,15 +52,6 @@ class MobileFacility(BaseModel):
         if value == "":
             return None
         return value
-
-    @property
-    def lat_long(self) -> tuple[float, float]:
-        """Return a tuple of the latitude and longitude"""
-        return (self.Latitude, self.Longitude)
-
-    def distance_miles_from(self, other: MobileFacility) -> float:
-        """Return the distance in miles between this facility and another"""
-        return distance(self.lat_long, other.lat_long).miles
 
     @classmethod
     def from_csv_row(cls, row: dict) -> MobileFacility:

@@ -144,3 +144,121 @@ class TestSearchByStreet:
         response_json = response.json()
         assert type(response_json) == list
         assert len(response_json) == 0
+
+
+class TestSearchNearby:
+    """
+    The following tests use the following coordinates:
+
+        Location ID: 1565954
+        Applicant: Treats by the Bay LLC
+        Latitude: 37.78924953407508
+        Longitude: -122.40241859729358
+
+        Manual analysis for the nearest neighbors (location ID, distance, status):
+        [
+            (1565954, 0.0, "APPROVED"),
+            (1589653, 0.0, "APPROVED"),
+            (1576374, 0.0, "APPROVED"),
+            (934517, 0.01657348314658408, "EXPIRED"),
+            # Note: the next two are tied
+            (1585464, 0.033574074938215744, "APPROVED"),
+            (934553, 0.033574074938215744, "EXPIRED"),
+            (1585472, 0.03395497936972788, "APPROVED"),
+            (1042438, 0.08178558325197138, "REQUESTED"),
+            (1337926, 0.08178558325197138, "REQUESTED"),
+        ]
+
+        Location ID: 1590833
+        Applicant: El Alambre
+        Latitude: 37.76785244271805
+        Longitude: -122.41610489253189
+
+        Manual analysis for the nearest neighbors (location ID, distance, status):
+        [
+            (1590834, 0.0, 'APPROVED'),
+            (1590833, 0.0, 'APPROVED'),
+            (751253, 0.0, 'REQUESTED'),
+            (1587562, 0.07280574469168964, 'APPROVED'),
+            (1332941, 0.1577400719482267, 'EXPIRED'),
+            (953198, 0.21574497480501592, 'EXPIRED'),
+            (1336734, 0.21949440273058746, 'EXPIRED'),
+            (1163790, 0.22689235547856157, 'REQUESTED'),
+            (1568966, 0.2401130478795503, 'APPROVED'),
+            (1034228, 0.24402899281168797, 'REQUESTED'),
+            (1568965, 0.24476063229752, 'APPROVED'),
+        ]
+    """
+
+    @pytest.mark.parametrize(
+        "latitude, longitude, expected_location_ids",
+        [
+            (
+                37.78924953407508,
+                -122.40251859729358,  # Tweaked to -122.4025 to prevent a tie
+                [1565954, 1589653, 1576374, 1585464, 1585472],
+            ),
+            (
+                37.76785244271805,
+                -122.41610489253189,
+                [1590834, 1590833, 1587562, 1568966, 1568965],
+            ),
+        ],
+    )
+    def test_default_search_only_shows_approved_locations(
+        self,
+        client: TestClient,
+        latitude: float,
+        longitude: float,
+        expected_location_ids: list[int],
+    ):
+        response = client.get(
+            "/search/nearby", params={"latitude": latitude, "longitude": longitude}
+        )
+        assert response.status_code == 200
+
+        response_json = response.json()
+        assert type(response_json) == list
+        assert len(response_json) == 5
+
+        location_ids = [row["locationid"] for row in response_json]
+        assert location_ids == expected_location_ids
+
+    @pytest.mark.parametrize(
+        "latitude, longitude, expected_location_ids",
+        [
+            (
+                37.78924953407508,
+                -122.40251859729358,  # Tweaked to -122.4025 to prevent a tie
+                [1565954, 1589653, 1576374, 934517, 1585464],
+            ),
+            (
+                37.76785244271805,
+                -122.41610489253189,
+                [1590834, 1590833, 751253, 1587562, 1332941],
+            ),
+        ],
+    )
+    def test_search_all_statuses_shows_all_closest_locations(
+        self,
+        client: TestClient,
+        latitude: float,
+        longitude: float,
+        expected_location_ids: list[int],
+    ):
+        response = client.get(
+            "/search/nearby",
+            params={
+                "latitude": latitude,
+                "longitude": longitude,
+                "approved_only": False,
+            },
+        )
+        assert response.status_code == 200
+
+        response_json = response.json()
+        assert type(response_json) == list
+        assert len(response_json) == 5
+
+        location_ids = [row["locationid"] for row in response_json]
+        assert location_ids == expected_location_ids
